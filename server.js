@@ -7,12 +7,18 @@ const passport = require('passport');
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger.json');
 const authRoutes = require('./routes/auth');
-
 require('dotenv').config();
 
 const PORT = process.env.PORT || 3000;
 
-// Connect to MongoDB
+// ✅ Middleware d'abord !
+app.use(cors());
+app.use(express.json()); // <-- Très important AVANT toutes les routes
+
+// ✅ Ensuite les routes
+app.use('/api/auth', authRoutes);
+
+// Connexion MongoDB
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => {
     console.log('✅ Connected to MongoDB');
@@ -26,11 +32,7 @@ mongoose.connect(process.env.MONGODB_URI)
     console.error('❌ MongoDB connection failed:', err.message);
   });
 
-// Middleware global (ordre important !)
-app.use(cors());
-app.use(express.json());  // <<< do this BEFORE your routes
-
-// Session & Passport (GitHub Auth)
+// Sessions & Passport
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
@@ -39,22 +41,21 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Routes
-app.use('/api/auth', authRoutes);  // after express.json()
+// Docs Swagger
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+// Autres routes
 app.use('/instructors', require('./routes/instructor-route'));
 app.use('/categories', require('./routes/category-route'));
 app.use('/api/users', require('./routes/user-route'));
 app.use('/api/courses', require('./routes/course-route'));
 app.use('/api/enrollments', require('./routes/enrollment-route'));
 
-// GitHub OAuth Route
+// OAuth GitHub
 const { router: oauthRouter } = require('./auth/oauth');
 app.use('/api/auth', oauthRouter);
 
-// Swagger docs
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-
-// Default route
+// Page d'accueil
 app.get('/', (req, res) => {
   res.send('Welcome to WebAcademy API');
 });
