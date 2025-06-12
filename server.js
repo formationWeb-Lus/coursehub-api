@@ -5,6 +5,8 @@ const session = require('express-session');
 const passport = require('passport');
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger.json');
+const authRoutes = require('./routes/auth');
+
 
 require('dotenv').config();
 
@@ -25,8 +27,9 @@ mongoose.connect(process.env.MONGODB_URI)
   .catch((err) => {
     console.error('❌ MongoDB connection failed:', err.message);
   });
-
+app.use('/api/auth', authRoutes);
 // Middleware
+app.use('/api/auth', authRoutes);
 app.use(cors());
 app.use(express.json());
 
