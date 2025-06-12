@@ -1,0 +1,23 @@
+# CourseHub API 🚀
+
+An educational RESTful API built with Node.js, Express, MongoDB, and GitHub OAuth.
+
+## 🔗 Live Demo
+
+- 🌐 Render: https://coursehub-api-xxxx.onrender.com
+- 📘 Swagger UI: https://coursehub-api-xxxx.onrender.com/api-docs
+
+## ✅ Features
+
+- Full CRUD: Users, Courses, Categories, Instructors, Enrollments
+- Auth: GitHub OAuth + JWT-secured routes (POST, PUT, DELETE)
+- Testing: Jest & Supertest with 100% pass rate
+- Validation: `express-validator` used for POST & PUT
+
+## 👥 Team Contributions
+
+| Team Member | Contributions |
+|-------------|----------------|
+| Alexandre | GitHub OAuth integration, JWT middleware, Unit tests for protected routes |
+| Sarah | Swagger API docs, POST/PUT input validation with express-validator |
+

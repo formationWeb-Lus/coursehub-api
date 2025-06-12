@@ -1,45 +1,61 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const dotenv = require('dotenv');
+const session = require('express-session');
+const passport = require('passport');
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger.json');
 
-
-
-
-// Charger les variables d'environnement
-dotenv.config();
+require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
+// Connect to MongoDB
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => {
+    console.log('✅ Connected to MongoDB');
+    // Démarre le serveur uniquement si le fichier est exécuté directement
+    if (require.main === module) {
+      app.listen(PORT, () => {
+        console.log(`🚀 Server running on port ${PORT}`);
+      });
+    }
+  })
+  .catch((err) => {
+    console.error('❌ MongoDB connection failed:', err.message);
+  });
 
+// Middleware
 app.use(cors());
 app.use(express.json());
 
-// Routes d'API
-const userRoutes = require('./routers/user-route');
-const courseRoutes = require('./routers/course-route');
-const enrollmentRoutes = require('./routers/enrollment-route');
+// Session & Passport (GitHub Auth)
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false
+}));
+app.use(passport.initialize());
+app.use(passport.session());
 
-// Swagger documentation
+// Swagger docs
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-// Définir les préfixes des routes pour les API REST
-app.use('/api/users', userRoutes);
-app.use('/api/courses', courseRoutes);
-app.use('/api/enrollments', enrollmentRoutes);
+// API Routes
+app.use('/instructors', require('./routes/instructor-route'));
+app.use('/categories', require('./routes/category-route'));
+app.use('/api/users', require('./routes/user-route'));
+app.use('/api/courses', require('./routes/course-route'));
+app.use('/api/enrollments', require('./routes/enrollment-route'));
 
-// Connexion à MongoDB (sans options dépréciées)
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => {
-    console.log('Connected to MongoDB');
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
-    });
-  })
-  .catch((err) => {
-    console.error('MongoDB connection failed:', err.message);
-  });
+// ✅ GitHub OAuth Route
+const { router: oauthRouter } = require('./auth/oauth');
+app.use('/api/auth', oauthRouter);
+
+// Default route
+app.get('/', (req, res) => {
+  res.send('Welcome to WebAcademy API');
+});
+
+module.exports = app;
