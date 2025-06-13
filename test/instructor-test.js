@@ -8,17 +8,15 @@ jest.setTimeout(15000);
 describe('Instructor API - GET endpoints', () => {
   let instructorId;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
+    // Crée un instructeur avant tous les tests
     const instructor = new Instructor({ name: 'Jean Dupont', bio: 'Prof sympa' });
     const saved = await instructor.save();
     instructorId = saved._id.toString();
   });
 
-  afterEach(async () => {
-    await Instructor.deleteMany({});
-  });
-
   afterAll(async () => {
+    await Instructor.deleteMany({});
     await mongoose.connection.close();
   });
 
@@ -33,16 +31,19 @@ describe('Instructor API - GET endpoints', () => {
     const res = await request(app).get(`/instructors/${instructorId}`);
     expect(res.statusCode).toBe(200);
     expect(res.body).toHaveProperty('_id', instructorId);
+    expect(res.body).toHaveProperty('name', 'Jean Dupont');
   });
 
   it('GET /instructors/:id with non-existent id should return 404', async () => {
     const fakeId = new mongoose.Types.ObjectId().toString();
     const res = await request(app).get(`/instructors/${fakeId}`);
     expect(res.statusCode).toBe(404);
+    expect(res.body).toHaveProperty('message');
   });
 
-  it('GET /instructors/:id with invalid id should return error status', async () => {
+  it('GET /instructors/:id with invalid id should return 400', async () => {
     const res = await request(app).get('/instructors/1234');
-    expect(res.statusCode).toBeGreaterThanOrEqual(400);
+    expect(res.statusCode).toBe(400);
+    expect(res.body).toHaveProperty('error');
   });
 });

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Category = require('../models/category-model');
-const { isAuthenticated } = require('../auth/oauth'); // middleware auth
+const verifyToken = require('../auth/verifyToken');
 
 // GET all categories (public)
 router.get('/', async (req, res) => {
@@ -25,7 +25,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // POST create category (secured)
-router.post('/', isAuthenticated, async (req, res) => {
+router.post('/', verifyToken, async (req, res) => {
   try {
     const { name, description } = req.body;
     if (!name) return res.status(400).json({ message: 'Name is required' });
@@ -42,7 +42,7 @@ router.post('/', isAuthenticated, async (req, res) => {
 });
 
 // PUT update category by ID (secured)
-router.put('/:id', isAuthenticated, async (req, res) => {
+router.put('/:id', verifyToken, async (req, res) => {
   try {
     const updated = await Category.findByIdAndUpdate(req.params.id, req.body, { new: true });
     if (!updated) return res.status(404).json({ message: 'Category not found' });
@@ -52,8 +52,8 @@ router.put('/:id', isAuthenticated, async (req, res) => {
   }
 });
 
-// DELETE category (optional: secured)
-router.delete('/:id', isAuthenticated, async (req, res) => {
+// DELETE category (secured)
+router.delete('/:id', verifyToken, async (req, res) => {
   try {
     const deleted = await Category.findByIdAndDelete(req.params.id);
     if (!deleted) return res.status(404).json({ message: 'Category not found' });

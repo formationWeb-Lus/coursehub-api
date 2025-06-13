@@ -1,58 +1,94 @@
-// routers/user-route.js
 const express = require('express');
 const router = express.Router();
 const User = require('../models/user-model');
+const bcrypt = require('bcryptjs');
+const { body, validationResult } = require('express-validator');
+const verifyToken = require('../auth/verifyToken'); // 🔐 Ajout du middleware JWT
 
-// 🔹 [NOUVEAU] Create a new user
-router.post('/', async (req, res) => {
-  try {
-    const newUser = new User(req.body);
-    await newUser.save();
-    res.status(201).json(newUser);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
+// 🔎 Validation des champs
+const userValidationRules = [
+  body('email').isEmail().withMessage('Email invalide'),
+  body('password').isLength({ min: 6 }).withMessage('Mot de passe trop court'),
+  body('name').notEmpty().withMessage('Nom requis'),
+  body('role').optional().isIn(['student', 'teacher', 'admin']).withMessage('Rôle invalide')
+];
+
+// 🔎 Middleware de validation
+function validateUser(req, res, next) {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
   }
-});
+  next();
+}
 
-// 🔹 [NOUVEAU] Get all users
-router.get('/', async (req, res) => {
+// 🔹 GET /api/users
+router.get('/', verifyToken, async (req, res, next) => {
   try {
     const users = await User.find();
     res.json(users);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 });
 
-// 🔸 Get user by ID
-router.get('/:id', async (req, res) => {
+// 🔹 PUT /api/users/:id
+router.put('/:id', verifyToken, async (req, res, next) => {
   try {
-    const user = await User.findById(req.params.id);
-    if (!user) return res.status(404).json({ message: 'User not found' });
-    res.json(user);
+    const updatedUser = await User.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedUser) return res.status(404).json({ message: 'User not found' });
+
+    res.json(updatedUser);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 });
 
-// 🔸 Update user
-router.put('/:id', async (req, res) => {
-  try {
-    const updated = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    res.json(updated);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-});
+// 🔐 Création d'utilisateur protégée par token
+router.post(
+  '/',
+  verifyToken,
+  userValidationRules,
+  validateUser,
+  async (req, res, next) => {
+    try {
+      const { email, password, name, role } = req.body;
 
-// 🔸 Delete user
-router.delete('/:id', async (req, res) => {
-  try {
-    await User.findByIdAndDelete(req.params.id);
-    res.json({ message: 'User deleted' });
-  } catch (err) {
-    res.status(400).json({ error: err.message });
+      // Vérifie si l'utilisateur existe déjà
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
+        return res.status(409).json({ message: 'Email déjà utilisé' });
+      }
+
+      // Hashage du mot de passe
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      // Création de l'utilisateur
+      const user = new User({
+        email,
+        password: hashedPassword,
+        name,
+        role: role || 'student' // Valeur par défaut
+      });
+
+      await user.save();
+
+      // Réponse
+      res.status(201).json({
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role
+      });
+    } catch (err) {
+      next(err);
+    }
   }
-});
+);
 
 module.exports = router;

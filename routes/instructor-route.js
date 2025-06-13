@@ -2,88 +2,60 @@ const express = require('express');
 const router = express.Router();
 const Instructor = require('../models/instructor-model');
 const { body, validationResult } = require('express-validator');
-const { isAuthenticated } = require('../auth/oauth');
+const verifyToken = require('../auth/verifyToken'); // ✅ CORRECT
+const asyncHandler = require('../utils/asyncHandler');
 
-// Exemple de route sécurisée POST
-router.post('/', isAuthenticated, async (req, res) => {
-  // création d’un instructeur uniquement si connecté via GitHub
-});
+// 🔹 GET all instructors (public)
+router.get('/', asyncHandler(async (req, res) => {
+  const instructors = await Instructor.find();
+  res.status(200).json(instructors);
+}));
 
-// Exemple de route sécurisée PUT
-router.put('/:id', isAuthenticated, async (req, res) => {
-  // modification possible uniquement si connecté
-});
+// 🔹 GET instructor by ID (public)
+router.get('/:id', asyncHandler(async (req, res) => {
+  const instructor = await Instructor.findById(req.params.id);
+  if (!instructor) return res.status(404).json({ message: 'Instructor not found' });
+  res.status(200).json(instructor);
+}));
 
-
-// GET all
-router.get('/', async (req, res) => {
-  try {
-    const instructors = await Instructor.find();
-    res.status(200).json(instructors);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-// GET by ID
-router.get('/:id', async (req, res) => {
-  try {
-    const instructor = await Instructor.findById(req.params.id);
-    if (!instructor) return res.status(404).json({ message: 'Not found' });
-    res.status(200).json(instructor);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-// POST
+// 🔐 POST create instructor (secured)
 router.post(
   '/',
+  verifyToken, // ✅ Correction ici
   body('name').notEmpty().withMessage('Name is required'),
   body('expertise').notEmpty().withMessage('Expertise is required'),
-  async (req, res) => {
+  asyncHandler(async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
-    try {
-      const { name, expertise, bio } = req.body;
-      const newInstructor = new Instructor({ name, expertise, bio });
-      await newInstructor.save();
-      res.status(201).json(newInstructor);
-    } catch (err) {
-      res.status(500).json({ message: err.message });
-    }
-  }
+    const { name, expertise, bio } = req.body;
+    const newInstructor = new Instructor({ name, expertise, bio });
+    await newInstructor.save();
+    res.status(201).json(newInstructor);
+  })
 );
 
-// PUT
+// 🔐 PUT update instructor (secured)
 router.put(
   '/:id',
+  verifyToken,
   body('name').optional().notEmpty().withMessage('Name cannot be empty'),
   body('expertise').optional().notEmpty().withMessage('Expertise cannot be empty'),
-  async (req, res) => {
+  asyncHandler(async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
-    try {
-      const updated = await Instructor.findByIdAndUpdate(req.params.id, req.body, { new: true });
-      if (!updated) return res.status(404).json({ message: 'Not found' });
-      res.status(200).json(updated);
-    } catch (err) {
-      res.status(500).json({ message: err.message });
-    }
-  }
+    const updated = await Instructor.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!updated) return res.status(404).json({ message: 'Instructor not found' });
+    res.status(200).json(updated);
+  })
 );
 
-// DELETE
-router.delete('/:id', async (req, res) => {
-  try {
-    const deleted = await Instructor.findByIdAndDelete(req.params.id);
-    if (!deleted) return res.status(404).json({ message: 'Not found' });
-    res.status(200).json({ message: 'Deleted successfully' });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
+// 🔐 DELETE instructor (secured)
+router.delete('/:id', verifyToken, asyncHandler(async (req, res) => {
+  const deleted = await Instructor.findByIdAndDelete(req.params.id);
+  if (!deleted) return res.status(404).json({ message: 'Instructor not found' });
+  res.status(200).json({ message: 'Deleted successfully' });
+}));
 
 module.exports = router;

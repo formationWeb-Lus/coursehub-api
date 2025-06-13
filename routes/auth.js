@@ -1,32 +1,29 @@
 const express = require('express');
-const jwt = require('jsonwebtoken');
 const router = express.Router();
+const User = require('../models/user-model');  // adapte le chemin
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
-// 🔐 À adapter selon ton modèle d'utilisateur réel
-const User = require('../models/user-model'); // Assure-toi que ce modèle existe
-
-// Route de connexion pour générer un token JWT
-router.post('/login', async (req, res) => {
-  const { email, password } = req.body;
-
+router.post('/login', async (req, res, next) => {
   try {
-    // Chercher l'utilisateur (à adapter selon ton système)
+    const { email, password } = req.body;
+    if (!email || !password) return res.status(400).json({ message: 'Email et mot de passe requis' });
+
     const user = await User.findOne({ email });
+    if (!user) return res.status(401).json({ message: 'Email ou mot de passe incorrect' });
 
-    if (!user || user.password !== password) {
-      return res.status(401).json({ message: 'Identifiants invalides' });
-    }
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.status(401).json({ message: 'Email ou mot de passe incorrect' });
 
-    // Génération du token
     const token = jwt.sign(
-      { id: user._id, email: user.email },
-      process.env.JWT_SECRET || 'tonSecret',
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET,
       { expiresIn: '1h' }
     );
 
     res.json({ token });
   } catch (err) {
-    res.status(500).json({ message: 'Erreur serveur' });
+    next(err);
   }
 });
 

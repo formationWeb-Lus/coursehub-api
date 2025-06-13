@@ -1,465 +1,595 @@
 {
-  "openapi": "3.0.0",
+  "openapi": "3.0.3",
   "info": {
     "title": "CourseHub API",
     "version": "1.0.0",
-    "description": "An API for managing online courses, users, enrollments, instructors, and categories."
+    "description": "API for managing courses, users, categories, enrollments, and instructors"
   },
   "servers": [
     {
-      "url": "https://coursehub-api-2bva.onrender.com",
-      "description": "Production server"
+      "url": "http://localhost:3000/api"
     }
   ],
-  "tags": [
-    { "name": "Courses", "description": "Course management endpoints" },
-    { "name": "Users", "description": "User management endpoints" },
-    { "name": "Enrollments", "description": "Enrollment management endpoints" },
-    { "name": "Instructors", "description": "Instructor management endpoints" },
-    { "name": "Categories", "description": "Category management endpoints" }
-  ],
-  "paths": {
-    "/api/courses": {
-      "get": {
-        "tags": ["Courses"],
-        "summary": "Retrieve all courses",
-        "responses": {
-          "200": {
-            "description": "List of courses",
-            "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Course" } } } }
-          }
-        }
-      },
-      "post": {
-        "tags": ["Courses"],
-        "summary": "Create a new course",
-        "requestBody": {
-          "required": true,
-          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Course" } } }
-        },
-        "responses": {
-          "201": { "description": "Course created successfully" },
-          "400": { "description": "Invalid course data" }
-        }
-      }
-    },
-    "/api/courses/{courseId}": {
-      "get": {
-        "tags": ["Courses"],
-        "summary": "Retrieve a course by ID",
-        "parameters": [
-          {
-            "name": "courseId",
-            "in": "path",
-            "required": true,
-            "description": "Course ID (MongoDB ObjectId)",
-            "schema": { "type": "string" }
-          }
-        ],
-        "responses": {
-          "200": { "description": "Course found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Course" } } } },
-          "404": { "description": "Course not found" }
-        }
-      },
-      "put": {
-        "tags": ["Courses"],
-        "summary": "Update a course",
-        "parameters": [
-          {
-            "name": "courseId",
-            "in": "path",
-            "required": true,
-            "description": "Course ID (MongoDB ObjectId)",
-            "schema": { "type": "string" }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Course" } } }
-        },
-        "responses": {
-          "200": { "description": "Course updated successfully" },
-          "400": { "description": "Invalid course data" }
-        }
-      },
-      "delete": {
-        "tags": ["Courses"],
-        "summary": "Delete a course",
-        "parameters": [
-          {
-            "name": "courseId",
-            "in": "path",
-            "required": true,
-            "description": "Course ID (MongoDB ObjectId)",
-            "schema": { "type": "string" }
-          }
-        ],
-        "responses": {
-          "200": { "description": "Course deleted successfully" },
-          "404": { "description": "Course not found" }
-        }
-      }
-    },
-    "/api/users": {
-      "get": {
-        "tags": ["Users"],
-        "summary": "Retrieve all users",
-        "responses": {
-          "200": {
-            "description": "List of users",
-            "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/User" } } } }
-          }
-        }
-      },
-      "post": {
-        "tags": ["Users"],
-        "summary": "Create a new user",
-        "requestBody": {
-          "required": true,
-          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/User" } } }
-        },
-        "responses": {
-          "201": { "description": "User created successfully" },
-          "400": { "description": "Invalid user data" }
-        }
-      }
-    },
-    "/api/users/{userId}": {
-      "get": {
-        "tags": ["Users"],
-        "summary": "Retrieve a user by ID",
-        "parameters": [
-          {
-            "name": "userId",
-            "in": "path",
-            "required": true,
-            "description": "User ID (MongoDB ObjectId)",
-            "schema": { "type": "string" }
-          }
-        ],
-        "responses": {
-          "200": { "description": "User found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/User" } } } },
-          "404": { "description": "User not found" }
-        }
-      },
-      "put": {
-        "tags": ["Users"],
-        "summary": "Update a user",
-        "parameters": [
-          {
-            "name": "userId",
-            "in": "path",
-            "required": true,
-            "description": "User ID (MongoDB ObjectId)",
-            "schema": { "type": "string" }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/User" } } }
-        },
-        "responses": {
-          "200": { "description": "User updated successfully" },
-          "400": { "description": "Invalid user data" }
-        }
-      },
-      "delete": {
-        "tags": ["Users"],
-        "summary": "Delete a user",
-        "parameters": [
-          {
-            "name": "userId",
-            "in": "path",
-            "required": true,
-            "description": "User ID (MongoDB ObjectId)",
-            "schema": { "type": "string" }
-          }
-        ],
-        "responses": {
-          "200": { "description": "User deleted successfully" },
-          "404": { "description": "User not found" }
-        }
-      }
-    },
-    "/api/enrollments": {
-      "get": {
-        "tags": ["Enrollments"],
-        "summary": "Retrieve all enrollments",
-        "responses": {
-          "200": {
-            "description": "List of enrollments",
-            "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Enrollment" } } } }
-          }
-        }
-      },
-      "post": {
-        "tags": ["Enrollments"],
-        "summary": "Enroll a user in a course",
-        "requestBody": {
-          "required": true,
-          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Enrollment" } } }
-        },
-        "responses": {
-          "201": { "description": "Enrollment created successfully" },
-          "400": { "description": "Invalid enrollment data" }
-        }
-      }
-    },
-    "/api/enrollments/{enrollmentId}": {
-      "get": {
-        "tags": ["Enrollments"],
-        "summary": "Retrieve an enrollment by ID",
-        "parameters": [
-          {
-            "name": "enrollmentId",
-            "in": "path",
-            "required": true,
-            "description": "Enrollment ID (MongoDB ObjectId)",
-            "schema": { "type": "string" }
-          }
-        ],
-        "responses": {
-          "200": { "description": "Enrollment found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Enrollment" } } } },
-          "404": { "description": "Enrollment not found" }
-        }
-      },
-      "delete": {
-        "tags": ["Enrollments"],
-        "summary": "Cancel an enrollment",
-        "parameters": [
-          {
-            "name": "enrollmentId",
-            "in": "path",
-            "required": true,
-            "description": "Enrollment ID (MongoDB ObjectId)",
-            "schema": { "type": "string" }
-          }
-        ],
-        "responses": {
-          "200": { "description": "Enrollment deleted successfully" },
-          "404": { "description": "Enrollment not found" }
-        }
-      }
-    },
-    "/api/instructors": {
-      "get": {
-        "tags": ["Instructors"],
-        "summary": "Retrieve all instructors",
-        "responses": {
-          "200": {
-            "description": "List of instructors",
-            "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Instructor" } } } }
-          }
-        }
-      },
-      "post": {
-        "tags": ["Instructors"],
-        "summary": "Create a new instructor",
-        "requestBody": {
-          "required": true,
-          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Instructor" } } }
-        },
-        "responses": {
-          "201": { "description": "Instructor created successfully" },
-          "400": { "description": "Invalid instructor data" }
-        }
-      }
-    },
-    "/api/instructors/{instructorId}": {
-      "get": {
-        "tags": ["Instructors"],
-        "summary": "Retrieve an instructor by ID",
-        "parameters": [
-          {
-            "name": "instructorId",
-            "in": "path",
-            "required": true,
-            "description": "Instructor ID (MongoDB ObjectId)",
-            "schema": { "type": "string" }
-          }
-        ],
-        "responses": {
-          "200": { "description": "Instructor found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Instructor" } } } },
-          "404": { "description": "Instructor not found" }
-        }
-      },
-      "put": {
-        "tags": ["Instructors"],
-        "summary": "Update instructor details",
-        "parameters": [
-          {
-            "name": "instructorId",
-            "in": "path",
-            "required": true,
-            "description": "Instructor ID (MongoDB ObjectId)",
-            "schema": { "type": "string" }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Instructor" } } }
-        },
-        "responses": {
-          "200": { "description": "Instructor updated successfully" },
-          "400": { "description": "Invalid instructor data" }
-        }
-      },
-      "delete": {
-        "tags": ["Instructors"],
-        "summary": "Delete an instructor",
-        "parameters": [
-          {
-            "name": "instructorId",
-            "in": "path",
-            "required": true,
-            "description": "Instructor ID (MongoDB ObjectId)",
-            "schema": { "type": "string" }
-          }
-        ],
-        "responses": {
-          "200": { "description": "Instructor deleted successfully" },
-          "404": { "description": "Instructor not found" }
-        }
-      }
-    },
-    "/api/categories": {
-      "get": {
-        "tags": ["Categories"],
-        "summary": "Retrieve all categories",
-        "responses": {
-          "200": {
-            "description": "List of categories",
-            "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Category" } } } }
-          }
-        }
-      },
-      "post": {
-        "tags": ["Categories"],
-        "summary": "Create a new category",
-        "requestBody": {
-          "required": true,
-          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Category" } } }
-        },
-        "responses": {
-          "201": { "description": "Category created successfully" },
-          "400": { "description": "Invalid category data" }
-        }
-      }
-    },
-    "/api/categories/{categoryId}": {
-      "get": {
-        "tags": ["Categories"],
-        "summary": "Retrieve a category by ID",
-        "parameters": [
-          {
-            "name": "categoryId",
-            "in": "path",
-            "required": true,
-            "description": "Category ID (MongoDB ObjectId)",
-            "schema": { "type": "string" }
-          }
-        ],
-        "responses": {
-          "200": { "description": "Category found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Category" } } } },
-          "404": { "description": "Category not found" }
-        }
-      },
-      "put": {
-        "tags": ["Categories"],
-        "summary": "Update a category",
-        "parameters": [
-          {
-            "name": "categoryId",
-            "in": "path",
-            "required": true,
-            "description": "Category ID (MongoDB ObjectId)",
-            "schema": { "type": "string" }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Category" } } }
-        },
-        "responses": {
-          "200": { "description": "Category updated successfully" },
-          "400": { "description": "Invalid category data" }
-        }
-      },
-      "delete": {
-        "tags": ["Categories"],
-        "summary": "Delete a category",
-        "parameters": [
-          {
-            "name": "categoryId",
-            "in": "path",
-            "required": true,
-            "description": "Category ID (MongoDB ObjectId)",
-            "schema": { "type": "string" }
-          }
-        ],
-        "responses": {
-          "200": { "description": "Category deleted successfully" },
-          "404": { "description": "Category not found" }
-        }
-      }
-    }
-  },
   "components": {
     "securitySchemes": {
-      "bearerAuth": { "type": "http", "scheme": "bearer", "bearerFormat": "JWT" }
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
     },
     "schemas": {
-      "Course": {
-        "type": "object",
-        "required": ["title", "description", "instructorId", "categoryId"],
-        "properties": {
-          "id": { "type": "string", "description": "Course ID (MongoDB ObjectId)", "example": "64a2f3b5e3a2f1d23c123456" },
-          "title": { "type": "string", "description": "Course title", "example": "Learn JavaScript Basics" },
-          "description": { "type": "string", "description": "Detailed course description", "example": "A beginner-friendly course covering JavaScript fundamentals." },
-          "instructorId": { "type": "string", "description": "Instructor ID", "example": "64a2f3b5e3a2f1d23c654321" },
-          "categoryId": { "type": "string", "description": "Category ID", "example": "64a2f3b5e3a2f1d23c111111" }
-        }
-      },
       "User": {
         "type": "object",
-        "required": ["name", "email", "role"],
+        "required": ["name", "email", "password"],
         "properties": {
-          "id": { "type": "string", "description": "User ID (MongoDB ObjectId)", "example": "64a2f3b5e3a2f1d23c987654" },
-          "name": { "type": "string", "description": "Full name of the user", "example": "John Doe" },
-          "email": { "type": "string", "format": "email", "description": "User email address", "example": "john.doe@example.com" },
-          "role": { "type": "string", "description": "User role within platform", "enum": ["student", "instructor", "admin"], "example": "student" }
+          "_id": { "type": "string", "example": "64a1234bcdef567890abcd12" },
+          "name": { "type": "string", "example": "John Doe" },
+          "email": { "type": "string", "format": "email", "example": "john.doe@example.com" },
+          "password": { "type": "string", "format": "password", "example": "Password123" },
+          "role": { "type": "string", "enum": ["student", "teacher", "admin"], "example": "teacher" },
+          "firstName": { "type": "string", "example": "John" },
+          "lastName": { "type": "string", "example": "Doe" },
+          "age": { "type": "integer", "example": 30 },
+          "enrolledCourses": {
+            "type": "array",
+            "items": { "type": "string", "description": "Course ID" }
+          }
         }
       },
-      "Enrollment": {
+      "Course": {
         "type": "object",
-        "required": ["userId", "courseId", "enrollmentDate"],
+        "required": ["title", "description", "price", "teacherId", "duration", "level"],
         "properties": {
-          "id": { "type": "string", "description": "Enrollment ID (MongoDB ObjectId)", "example": "64a2f3b5e3a2f1d23c222222" },
-          "userId": { "type": "string", "description": "User ID of the enrolled student", "example": "64a2f3b5e3a2f1d23c987654" },
-          "courseId": { "type": "string", "description": "Course ID being enrolled in", "example": "64a2f3b5e3a2f1d23c123456" },
-          "enrollmentDate": { "type": "string", "format": "date-time", "description": "Enrollment date and time (UTC)", "example": "2025-06-11T10:30:00Z" }
-        }
-      },
-      "Instructor": {
-        "type": "object",
-        "required": ["name", "bio", "email"],
-        "properties": {
-          "id": { "type": "string", "description": "Instructor ID (MongoDB ObjectId)", "example": "64a2f3b5e3a2f1d23c333333" },
-          "name": { "type": "string", "description": "Full name of the instructor", "example": "Alice Smith" },
-          "bio": { "type": "string", "description": "Brief biography or credentials", "example": "Experienced web developer and instructor." },
-          "email": { "type": "string", "format": "email", "description": "Instructor email address", "example": "alice.smith@example.com" }
+          "_id": { "type": "string", "example": "64a1234bcdef567890abcd34" },
+          "title": { "type": "string", "example": "Web Development" },
+          "description": { "type": "string", "example": "Learn how to build websites" },
+          "price": { "type": "number", "example": 99.99 },
+          "duration": { "type": "integer", "example": 120 },
+          "level": { "type": "string", "enum": ["beginner", "intermediate", "advanced"], "example": "intermediate" },
+          "category": { "type": "string", "example": "Development" },
+          "teacherId": { "type": "string", "example": "64a1234bcdef567890abcd56" },
+          "image": { "type": "string", "format": "uri", "example": "https://example.com/image.png" }
         }
       },
       "Category": {
         "type": "object",
-        "required": ["name", "description"],
+        "required": ["name"],
         "properties": {
-          "id": { "type": "string", "description": "Category ID (MongoDB ObjectId)", "example": "64a2f3b5e3a2f1d23c444444" },
-          "name": { "type": "string", "description": "Category name", "example": "Programming" },
-          "description": { "type": "string", "description": "Description of category", "example": "Courses related to programming languages and development." }
+          "_id": { "type": "string", "example": "64a1234bcdef567890abcd78" },
+          "name": { "type": "string", "example": "Programming" },
+          "description": { "type": "string", "example": "All programming related courses" },
+          "createdAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "Enrollment": {
+        "type": "object",
+        "properties": {
+          "_id": { "type": "string", "example": "64a1234bcdef567890abcd90" },
+          "courseId": { "type": "string", "example": "64a1234bcdef567890abcd34" },
+          "studentId": { "type": "string", "example": "64a1234bcdef567890abcd12" },
+          "progress": { "type": "integer", "example": 50 },
+          "grade": { "type": "string", "example": "A" },
+          "enrolledAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "Instructor": {
+        "type": "object",
+        "required": ["name", "expertise"],
+        "properties": {
+          "_id": { "type": "string", "example": "64a1234bcdef567890abcd91" },
+          "name": { "type": "string", "example": "Jane Smith" },
+          "expertise": { "type": "string", "example": "JavaScript" },
+          "bio": { "type": "string", "example": "Experienced JS developer and teacher" },
+          "createdAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "AuthRequest": {
+        "type": "object",
+        "required": ["email", "password"],
+        "properties": {
+          "email": { "type": "string", "format": "email", "example": "user@example.com" },
+          "password": { "type": "string", "format": "password", "example": "Password123" }
+        }
+      },
+      "AuthResponse": {
+        "type": "object",
+        "properties": {
+          "token": { "type": "string", "example": "eyJhbGciOiJI..." }
         }
       }
     }
   },
-  "security": [{ "bearerAuth": [] }]
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "paths": {
+    "/auth/login": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Login to get JWT token",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/AuthRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "JWT token returned",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/AuthResponse" }
+              }
+            }
+          },
+          "401": { "description": "Unauthorized" }
+        },
+        "security": []
+      }
+    },
+    "/users": {
+      "get": {
+        "tags": ["User"],
+        "summary": "List all users",
+        "responses": {
+          "200": {
+            "description": "List of users",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/User" }
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      },
+      "post": {
+        "tags": ["User"],
+        "summary": "Create a new user",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/User" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/User" }
+              }
+            }
+          },
+          "400": { "description": "Invalid input" }
+        }
+      }
+    },
+    "/users/{id}": {
+      "get": {
+        "tags": ["User"],
+        "summary": "Get a user by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "User ID",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User details",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/User" }
+              }
+            }
+          },
+          "404": { "description": "User not found" }
+        },
+        "security": []
+      },
+      "put": {
+        "tags": ["User"],
+        "summary": "Update user by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "User ID",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/User" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "User updated" },
+          "400": { "description": "Invalid input" },
+          "404": { "description": "User not found" }
+        }
+      },
+      "delete": {
+        "tags": ["User"],
+        "summary": "Delete user by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "User ID",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "User deleted" },
+          "404": { "description": "User not found" }
+        }
+      }
+    },
+
+    "/courses": {
+      "get": {
+        "tags": ["Course"],
+        "summary": "List all courses",
+        "responses": {
+          "200": {
+            "description": "List of courses",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Course" }
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      },
+      "post": {
+        "tags": ["Course"],
+        "summary": "Create a new course",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Course" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Course created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Course" }
+              }
+            }
+          },
+          "400": { "description": "Invalid input" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/courses/{id}": {
+      "get": {
+        "tags": ["Course"],
+        "summary": "Get course by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Course ID",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Course details",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Course" }
+              }
+            }
+          },
+          "404": { "description": "Course not found" }
+        },
+        "security": []
+      },
+      "put": {
+        "tags": ["Course"],
+        "summary": "Update course by ID",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Course ID",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Course" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Course updated" },
+          "400": { "description": "Invalid input" },
+          "401": { "description": "Unauthorized" },
+          "404": { "description": "Course not found" }
+        }
+      },
+      "delete": {
+        "tags": ["Course"],
+        "summary": "Delete course by ID",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Course ID",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Course deleted" },
+          "401": { "description": "Unauthorized" },
+          "404": { "description": "Course not found" }
+        }
+      }
+    },
+
+    "/categories": {
+      "get": {
+        "tags": ["Category"],
+        "summary": "List all categories",
+        "responses": {
+          "200": {
+            "description": "List of categories",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Category" }
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      },
+      "post": {
+        "tags": ["Category"],
+        "summary": "Create a new category",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Category" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Category created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Category" }
+              }
+            }
+          },
+          "400": { "description": "Invalid input" }
+        }
+      }
+    },
+    "/categories/{id}": {
+      "get": {
+        "tags": ["Category"],
+        "summary": "Get category by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Category ID",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Category details",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Category" }
+              }
+            }
+          },
+          "404": { "description": "Category not found" }
+        }
+      },
+      "put": {
+        "tags": ["Category"],
+        "summary": "Update category by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Category ID",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Category" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Category updated" },
+          "400": { "description": "Invalid input" },
+          "404": { "description": "Category not found" }
+        }
+      },
+      "delete": {
+        "tags": ["Category"],
+        "summary": "Delete category by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Category ID",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Category deleted" },
+          "404": { "description": "Category not found" }
+        }
+      }
+    },
+
+    "/enrollments": {
+      "get": {
+        "tags": ["Enrollment"],
+        "summary": "List all enrollments",
+        "responses": {
+          "200": {
+            "description": "List of enrollments",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Enrollment" }
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      },
+      "post": {
+        "tags": ["Enrollment"],
+        "summary": "Create a new enrollment",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Enrollment" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Enrollment created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Enrollment" }
+              }
+            }
+          },
+          "400": { "description": "Invalid input" }
+        }
+      }
+    },
+    "/enrollments/{id}": {
+      "get": {
+        "tags": ["Enrollment"],
+        "summary": "Get enrollment by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Enrollment ID",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Enrollment details",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Enrollment" }
+              }
+            }
+          },
+          "404": { "description": "Enrollment not found" }
+        }
+      },
+      "put": {
+        "tags": ["Enrollment"],
+        "summary": "Update enrollment by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Enrollment ID",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Enrollment" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Enrollment updated" },
+          "400": { "description": "Invalid input" },
+          "404": { "description": "Enrollment not found" }
+        }
+      },
+      "delete": {
+        "tags": ["Enrollment"],
+        "summary": "Delete enrollment by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Enrollment ID",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Enrollment deleted" },
+          "404": { "description": "Enrollment not found" }
+        }
+      }
+    }
+  }
 }
