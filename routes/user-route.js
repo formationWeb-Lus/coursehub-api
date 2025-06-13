@@ -49,13 +49,12 @@ router.put('/:id', verifyToken, async (req, res, next) => {
   }
 });
 
-// 🔐 Création d'utilisateur protégée par token
 router.post(
   '/',
-  verifyToken,
   userValidationRules,
   validateUser,
   async (req, res, next) => {
+
     try {
       const { email, password, name, role } = req.body;
 
