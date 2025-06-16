@@ -1,39 +1,41 @@
 const express = require('express');
-const app = express();
 const mongoose = require('mongoose');
 const cors = require('cors');
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger.json');
 require('dotenv').config();
 
-// Middleware globaux (doivent être déclarés avant les routes)
+const app = express();
+
+// ===== MIDDLEWARES GLOBAUX =====
 app.use(cors());
 app.use(express.json());
 
-// Routes
-const authRoutes = require('./routes/auth');
-const courseRoutes = require('./routes/course-route');
-const categoryRoutes = require('./routes/category-route');
-const enrollmentRoutes = require('./routes/enrollment-route');
-const userRoutes = require('./routes/user-route');
-const instructorRoutes = require('./routes/instructor-route');
+// ===== IMPORT DES ROUTES =====
+const authRoutes = require('./routes/auth'); // /login, /register
+const courseRoutes = require('./routes/course-route'); // courses
+const categoryRoutes = require('./routes/category-route'); // categories
+const enrollmentRoutes = require('./routes/enrollment-route'); // enrollments
+const userRoutes = require('./routes/user-route'); // users
+const instructorRoutes = require('./routes/instructor-route'); // instructors
 
-app.use('/api/auth', authRoutes);               // /login, /register
-app.use('/api/course', courseRoute);
-app.use('/api/category', categoryRoute);
-app.use('/api/enrollment', enrollmentRoute);
-app.use('/api/user', userRoute);
-app.use('/api/instructor', instructorRoute);
+// ===== UTILISATION DES ROUTES =====
+app.use('/api/auth', authRoutes); // ex: /api/auth/login
+app.use('/api/courses', courseRoutes);
+app.use('/api/categories', categoryRoutes);
+app.use('/api/enrollments', enrollmentRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/instructors', instructorRoutes);
 
-// Swagger docs
+// ===== SWAGGER DOCS =====
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-// Accueil
+// ===== ROUTE D'ACCUEIL =====
 app.get('/', (req, res) => {
   res.send('Welcome to WebAcademy API');
 });
 
-// Gestion globale des erreurs
+// ===== MIDDLEWARE GLOBAL D’ERREUR =====
 app.use((err, req, res, next) => {
   console.error(err);
   res.status(err.statusCode || 500).json({
@@ -42,8 +44,9 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Connexion à MongoDB
+// ===== CONNEXION À MONGODB + LANCEMENT DU SERVEUR =====
 const PORT = process.env.PORT || 3000;
+
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => {
     console.log('✅ Connected to MongoDB');
