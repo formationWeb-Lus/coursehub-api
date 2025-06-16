@@ -4,33 +4,28 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger.json');
-const authRoutes = require('./routes/auth');        // contient login + register idéalement
 require('dotenv').config();
-const courseRoutes = require('./routes/course-route'); // chemin correct
-app.use('/api/courses', courseRoutes);
+
+// Middleware globaux (doivent être déclarés avant les routes)
+app.use(cors());
+app.use(express.json());
+
+// Routes
+const authRoutes = require('./routes/auth');
+const courseRoutes = require('./routes/course-route');
 const categoryRoutes = require('./routes/category-route');
 const enrollmentRoutes = require('./routes/enrollment-route');
 const userRoutes = require('./routes/user-route');
 const instructorRoutes = require('./routes/instructor-route');
 
-// Utilisation des routes
-app.use('/api/categories', categoryRoutes);
-app.use('/api/enrollments', enrollmentRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/instructors', instructorRoutes);
+app.use('/api/auth', authRoutes);               // /login, /register
+app.use('/api/course', courseRoute);
+app.use('/api/category', categoryRoute);
+app.use('/api/enrollment', enrollmentRoute);
+app.use('/api/user', userRoute);
+app.use('/api/instructor', instructorRoute);
 
-// Middlewares globaux
-app.use(cors());
-app.use(express.json());
-
-// Routes
-app.use('/api/auth', authRoutes);   // ici authRoutes doit contenir les routes /login et /register
-
-app.use('/api/users', require('./routes/user-route'));
-// autres routes...
-app.use('/api/enrollments', require('./routes/enrollment-route'));
-
-// Swagger
+// Swagger docs
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Accueil
@@ -38,7 +33,7 @@ app.get('/', (req, res) => {
   res.send('Welcome to WebAcademy API');
 });
 
-// Middleware global d’erreur
+// Gestion globale des erreurs
 app.use((err, req, res, next) => {
   console.error(err);
   res.status(err.statusCode || 500).json({
@@ -47,7 +42,7 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Connexion à MongoDB puis démarrage serveur
+// Connexion à MongoDB
 const PORT = process.env.PORT || 3000;
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => {
