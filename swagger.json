@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "url": "http://localhost:3000/api"
+      "url": "https://coursehub-api-2bva.onrender.com"
     }
   ],
   "components": {
