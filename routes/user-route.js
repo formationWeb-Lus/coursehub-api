@@ -3,7 +3,7 @@ const router = express.Router();
 const User = require('../models/user-model');
 const bcrypt = require('bcryptjs');
 const { body, validationResult } = require('express-validator');
-const verifyToken = require('../auth/verifyToken'); // 🔐 Ajout du middleware JWT
+const verifyToken = require('../auth/verifyToken'); // 🔐 Middleware JWT
 
 // 🔎 Validation des champs
 const userValidationRules = [
@@ -22,8 +22,8 @@ function validateUser(req, res, next) {
   next();
 }
 
-// 🔹 GET /api/users
-router.get('/', verifyToken, async (req, res, next) => {
+// 🔹 GET /api/users → sans auth
+router.get('/', async (req, res, next) => {
   try {
     const users = await User.find();
     res.json(users);
@@ -32,7 +32,20 @@ router.get('/', verifyToken, async (req, res, next) => {
   }
 });
 
-// 🔹 PUT /api/users/:id
+// 🔹 DELETE /api/users/:id → sans auth
+router.delete('/:id', async (req, res, next) => {
+  try {
+    const deletedUser = await User.findByIdAndDelete(req.params.id);
+    if (!deletedUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.json({ message: 'User deleted' });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// 🔹 PUT /api/users/:id → avec auth
 router.put('/:id', verifyToken, async (req, res, next) => {
   try {
     const updatedUser = await User.findByIdAndUpdate(
@@ -40,44 +53,39 @@ router.put('/:id', verifyToken, async (req, res, next) => {
       req.body,
       { new: true, runValidators: true }
     );
-
     if (!updatedUser) return res.status(404).json({ message: 'User not found' });
-
     res.json(updatedUser);
   } catch (err) {
     next(err);
   }
 });
 
+// 🔹 POST /api/users → avec auth
 router.post(
   '/',
+  verifyToken, // protection ici
   userValidationRules,
   validateUser,
   async (req, res, next) => {
-
     try {
       const { email, password, name, role } = req.body;
 
-      // Vérifie si l'utilisateur existe déjà
       const existingUser = await User.findOne({ email });
       if (existingUser) {
         return res.status(409).json({ message: 'Email déjà utilisé' });
       }
 
-      // Hashage du mot de passe
       const hashedPassword = await bcrypt.hash(password, 10);
 
-      // Création de l'utilisateur
       const user = new User({
         email,
         password: hashedPassword,
         name,
-        role: role || 'student' // Valeur par défaut
+        role: role || 'student'
       });
 
       await user.save();
 
-      // Réponse
       res.status(201).json({
         _id: user._id,
         name: user.name,

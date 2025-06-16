@@ -2,61 +2,84 @@ const express = require('express');
 const router = express.Router();
 const Category = require('../models/category-model');
 const verifyToken = require('../auth/verifyToken');
+const mongoose = require('mongoose');
 
-// GET all categories (public)
+// ✅ Vérification ID Mongo valide
+function isValidObjectId(id) {
+  return mongoose.Types.ObjectId.isValid(id);
+}
+
+// 🔹 GET all categories (public)
 router.get('/', async (req, res) => {
   try {
     const categories = await Category.find();
     res.json(categories);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: 'Server error' });
   }
 });
 
-// GET category by ID (public)
+// 🔹 GET category by ID (public)
 router.get('/:id', async (req, res) => {
   try {
-    const category = await Category.findById(req.params.id);
+    const { id } = req.params;
+    if (!isValidObjectId(id)) {
+      return res.status(400).json({ message: 'Invalid ID format' });
+    }
+
+    const category = await Category.findById(id);
     if (!category) return res.status(404).json({ message: 'Category not found' });
     res.json(category);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: 'Server error' });
   }
 });
 
-// POST create category (secured)
+// 🔐 POST create category (secured)
 router.post('/', verifyToken, async (req, res) => {
   try {
     const { name, description } = req.body;
     if (!name) return res.status(400).json({ message: 'Name is required' });
 
-    const existing = await Category.findOne({ name });
-    if (existing) return res.status(409).json({ message: 'Category already exists' });
+    const exists = await Category.findOne({ name });
+    if (exists) return res.status(409).json({ message: 'Category already exists' });
 
-    const newCategory = new Category({ name, description });
-    await newCategory.save();
-    res.status(201).json(newCategory);
+    const category = new Category({ name, description });
+    await category.save();
+    res.status(201).json(category);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 });
 
-// PUT update category by ID (secured)
+// 🔐 PUT update category (secured)
 router.put('/:id', verifyToken, async (req, res) => {
   try {
-    const updated = await Category.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const { id } = req.params;
+    if (!isValidObjectId(id)) {
+      return res.status(400).json({ message: 'Invalid ID format' });
+    }
+
+    const updated = await Category.findByIdAndUpdate(id, req.body, { new: true });
     if (!updated) return res.status(404).json({ message: 'Category not found' });
+
     res.json(updated);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 });
 
-// DELETE category (secured)
+// 🔐 DELETE category (secured)
 router.delete('/:id', verifyToken, async (req, res) => {
   try {
-    const deleted = await Category.findByIdAndDelete(req.params.id);
+    const { id } = req.params;
+    if (!isValidObjectId(id)) {
+      return res.status(400).json({ message: 'Invalid ID format' });
+    }
+
+    const deleted = await Category.findByIdAndDelete(id);
     if (!deleted) return res.status(404).json({ message: 'Category not found' });
+
     res.json({ message: 'Category deleted' });
   } catch (err) {
     res.status(400).json({ error: err.message });

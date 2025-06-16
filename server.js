@@ -6,6 +6,18 @@ const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger.json');
 const authRoutes = require('./routes/auth');        // contient login + register idéalement
 require('dotenv').config();
+const courseRoutes = require('./routes/course-route'); // chemin correct
+app.use('/api/courses', courseRoutes);
+const categoryRoutes = require('./routes/category-route');
+const enrollmentRoutes = require('./routes/enrollment-route');
+const userRoutes = require('./routes/user-route');
+const instructorRoutes = require('./routes/instructor-route');
+
+// Utilisation des routes
+app.use('/api/categories', categoryRoutes);
+app.use('/api/enrollments', enrollmentRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/instructors', instructorRoutes);
 
 // Middlewares globaux
 app.use(cors());

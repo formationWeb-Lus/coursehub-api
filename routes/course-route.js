@@ -30,19 +30,6 @@ function validateCourse(req, res, next) {
   next();
 }
 
-// 🔹 Créer un cours
-router.post(
-  '/',
-  verifyToken,
-  courseValidationRules,
-  validateCourse,
-  asyncHandler(async (req, res) => {
-    const course = new Course(req.body);
-    await course.save();
-    res.status(201).json(course);
-  })
-);
-
 function validateObjectId(req, res, next) {
   const isValid = mongoose.Types.ObjectId.isValid(req.params.id);
   if (!isValid) {
@@ -51,7 +38,7 @@ function validateObjectId(req, res, next) {
   next();
 }
 
-// 🔹 Obtenir tous les cours avec pagination
+// 🔹 ✅ GET tous les cours (public)
 router.get(
   '/',
   asyncHandler(async (req, res) => {
@@ -64,33 +51,35 @@ router.get(
   })
 );
 
-
-// Route GET /api/courses/:id
-router.get('/:id', async (req, res, next) => {
-  try {
-    const courseId = req.params.id;
-
-    // Vérification de la validité de l'ID MongoDB
-    if (!mongoose.Types.ObjectId.isValid(courseId)) {
-      const error = new Error('Invalid course ID format');
-      error.statusCode = 400;
-      throw error;
-    }
-
-    const course = await Course.findById(courseId);
+// 🔹 ✅ GET cours par ID (public)
+router.get(
+  '/:id',
+  validateObjectId,
+  asyncHandler(async (req, res) => {
+    const course = await Course.findById(req.params.id);
     if (!course) {
       const error = new Error('Course not found');
       error.statusCode = 404;
       throw error;
     }
-
     res.json(course);
-  } catch (err) {
-    next(err);
-  }
-});
+  })
+);
 
-// 🔹 Modifier un cours
+// 🔐 🔹 POST créer un cours (protégé)
+router.post(
+  '/',
+  verifyToken,
+  courseValidationRules,
+  validateCourse,
+  asyncHandler(async (req, res) => {
+    const course = new Course(req.body);
+    await course.save();
+    res.status(201).json(course);
+  })
+);
+
+// 🔐 🔹 PUT modifier un cours (protégé)
 router.put(
   '/:id',
   verifyToken,
@@ -110,10 +99,9 @@ router.put(
   })
 );
 
-// 🔹 Supprimer un cours
+// 🔹 ✅ DELETE supprimer un cours (public)
 router.delete(
   '/:id',
-  verifyToken,
   asyncHandler(async (req, res) => {
     const deleted = await Course.findByIdAndDelete(req.params.id);
     if (!deleted) {
@@ -126,4 +114,5 @@ router.delete(
 );
 
 module.exports = router;
+
 

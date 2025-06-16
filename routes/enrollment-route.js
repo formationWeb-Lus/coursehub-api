@@ -4,7 +4,7 @@ const Enrollment = require("../models/enrollment-model");
 const verifyToken = require("../auth/verifyToken");
 const asyncHandler = require("../utils/asyncHandler");
 
-// POST create a new enrollment (secured)
+// 🔐 POST create a new enrollment (secured)
 router.post(
   "/",
   verifyToken,
@@ -15,32 +15,31 @@ router.post(
   })
 );
 
-// GET all enrollments (secured)
-router.get(
-  "/",
-  verifyToken,
-  asyncHandler(async (req, res) => {
+router.get('/', async (req, res) => {
+  try {
     const enrollments = await Enrollment.find()
-      .populate("userId", "name email")
-      .populate("courseId", "title description");
+      .populate('studentId', 'name email') // Optionnel : ne renvoyer que le nom et l’email
+      .populate('courseId', 'title price'); // Optionnel : ne renvoyer que le titre et le prix
     res.json(enrollments);
-  })
-);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
-// GET enrollment by ID (secured)
+
+// ✅ GET enrollment by ID (public)
 router.get(
   "/:id",
-  verifyToken,
   asyncHandler(async (req, res) => {
     const enrollment = await Enrollment.findById(req.params.id)
-      .populate("userId", "name email")
+      .populate("studentId", "name email")
       .populate("courseId", "title description");
     if (!enrollment) return res.status(404).json({ message: "Enrollment not found" });
     res.json(enrollment);
   })
 );
 
-// PUT update enrollment (secured)
+// 🔐 PUT update enrollment (secured)
 router.put(
   "/:id",
   verifyToken,
@@ -54,10 +53,9 @@ router.put(
   })
 );
 
-// DELETE enrollment (secured)
+// ✅ DELETE enrollment (public)
 router.delete(
   "/:id",
-  verifyToken,
   asyncHandler(async (req, res) => {
     const deleted = await Enrollment.findByIdAndDelete(req.params.id);
     if (!deleted) return res.status(404).json({ message: "Enrollment not found" });

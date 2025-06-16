@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Instructor = require('../models/instructor-model');
 const { body, validationResult } = require('express-validator');
-const verifyToken = require('../auth/verifyToken'); // ✅ CORRECT
+const verifyToken = require('../auth/verifyToken');
 const asyncHandler = require('../utils/asyncHandler');
 
 // 🔹 GET all instructors (public)
@@ -21,7 +21,7 @@ router.get('/:id', asyncHandler(async (req, res) => {
 // 🔐 POST create instructor (secured)
 router.post(
   '/',
-  verifyToken, // ✅ Correction ici
+  verifyToken, // 🔐 Auth only here
   body('name').notEmpty().withMessage('Name is required'),
   body('expertise').notEmpty().withMessage('Expertise is required'),
   asyncHandler(async (req, res) => {
@@ -38,7 +38,7 @@ router.post(
 // 🔐 PUT update instructor (secured)
 router.put(
   '/:id',
-  verifyToken,
+  verifyToken, // 🔐 Auth only here
   body('name').optional().notEmpty().withMessage('Name cannot be empty'),
   body('expertise').optional().notEmpty().withMessage('Expertise cannot be empty'),
   asyncHandler(async (req, res) => {
@@ -51,8 +51,8 @@ router.put(
   })
 );
 
-// 🔐 DELETE instructor (secured)
-router.delete('/:id', verifyToken, asyncHandler(async (req, res) => {
+// 🔓 DELETE instructor (public)
+router.delete('/:id', asyncHandler(async (req, res) => {
   const deleted = await Instructor.findByIdAndDelete(req.params.id);
   if (!deleted) return res.status(404).json({ message: 'Instructor not found' });
   res.status(200).json({ message: 'Deleted successfully' });
