@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "url": "https://coursehub-api-2bva.onrender.com"
+      "url": "https://coursehub-api-2bva.onrender.com/api"
     }
   ],
   "components": {
