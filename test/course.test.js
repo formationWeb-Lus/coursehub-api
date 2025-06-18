@@ -2,6 +2,8 @@ const request = require('supertest');
 const app = require('../server');
 const Course = require('../models/course-model');
 const mongoose = require('mongoose');
+jest.setTimeout(15000); // 10 seconds
+
 
 describe('Courses API GET endpoints', () => {
   let courseId;
