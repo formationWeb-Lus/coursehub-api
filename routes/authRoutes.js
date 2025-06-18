@@ -5,8 +5,8 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const passport = require('passport');
 
-// POST /api/auth/register
-router.post('/api/auth/register', async (req, res) => {
+// POST /register
+router.post('/register', async (req, res) => {
   try {
     const { email, password, name } = req.body;
     if (!email || !password || !name) {
@@ -35,8 +35,8 @@ router.post('/api/auth/register', async (req, res) => {
   }
 });
 
-// POST /api/auth/login
-router.post('/api/auth/login', async (req, res) => {
+// POST /login
+router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) {
@@ -67,12 +67,12 @@ router.post('/api/auth/login', async (req, res) => {
 });
 
 // GET /auth/google
-router.get('/auth/google', passport.authenticate('google', {
+router.get('/google', passport.authenticate('google', {
   scope: ['profile', 'email']
 }));
 
 // GET /auth/google/callback
-router.get('/auth/google/callback',
+router.get('/google/callback',
   passport.authenticate('google', { session: false, failureRedirect: '/login' }),
   (req, res) => {
     const token = jwt.sign(
