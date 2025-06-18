@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "url": "http://localhost:3000/api"
+      "url": "https://coursehub-api-2bva.onrender.com"
     }
   ],
   "components": {
@@ -132,6 +132,100 @@
         "security": []
       }
     },
+
+    "/auth/google": {
+  "get": {
+    "tags": ["Auth"],
+    "summary": "Redirect to Google for authentication",
+    "responses": {
+      "302": {
+        "description": "Redirect to Google Login"
+      }
+    }
+  }
+},
+"/auth/google/callback": {
+  "get": {
+    "tags": ["Auth"],
+    "summary": "Handle Google OAuth callback",
+    "responses": {
+      "302": {
+        "description": "Redirect to dashboard or error"
+      }
+    }
+  }
+},
+
+
+"/api/auth/register": {
+  "post": {
+    "tags": ["Auth"],
+    "summary": "Register a new user",
+    "requestBody": {
+      "required": true,
+      "content": {
+        "application/json": {
+          "schema": {
+            "type": "object",
+            "required": ["email", "password", "name"],
+            "properties": {
+              "email": { "type": "string", "example": "user@example.com" },
+              "password": { "type": "string", "example": "Password123" },
+              "name": { "type": "string", "example": "John Doe" }
+            }
+          }
+        }
+      }
+    },
+    "responses": {
+      "201": { "description": "User registered successfully" },
+      "400": { "description": "Missing required fields" },
+      "409": { "description": "Email already exists" },
+      "500": { "description": "Server error" }
+    }
+  }
+},
+"/api/auth/login": {
+  "post": {
+    "tags": ["Auth"],
+    "summary": "Login a user and return a JWT",
+    "requestBody": {
+      "required": true,
+      "content": {
+        "application/json": {
+          "schema": {
+            "type": "object",
+            "required": ["email", "password"],
+            "properties": {
+              "email": { "type": "string", "example": "user@example.com" },
+              "password": { "type": "string", "example": "Password123" }
+            }
+          }
+        }
+      }
+    },
+    "responses": {
+      "200": {
+        "description": "Login successful, JWT returned",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "token": { "type": "string", "example": "eyJhbGciOi..." }
+              }
+            }
+          }
+        }
+      },
+      "400": { "description": "Missing email or password" },
+      "401": { "description": "Invalid credentials" },
+      "500": { "description": "Server error" }
+    }
+  }
+},
+
+
     "/users": {
       "get": {
         "tags": ["User"],
@@ -178,7 +272,7 @@
     "/users/{id}": {
       "get": {
         "tags": ["User"],
-        "summary": "Get a user by ID",
+        "summar2y": "Get a user by ID",
         "parameters": [
           {
             "name": "id",
@@ -216,7 +310,7 @@
         "requestBody": {
           "required": true,
           "content": {
-            "application/json": {
+            "app2lication/json": {
               "schema": { "$ref": "#/components/schemas/User" }
             }
           }
@@ -254,7 +348,7 @@
           "200": {
             "description": "List of courses",
             "content": {
-              "application/json": {
+              "ap2plication/json": {
                 "schema": {
                   "type": "array",
                   "items": { "$ref": "#/components/schemas/Course" }
@@ -330,7 +424,7 @@
             "schema": { "type": "string" }
           }
         ],
-        "requestBody": {
+        "reques2tBody": {
           "required": true,
           "content": {
             "application/json": {

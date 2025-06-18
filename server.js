@@ -5,22 +5,35 @@ const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger.json');
 require('dotenv').config();
 
+const session = require("express-session");
+const passport = require("passport");
+require("./config/passport");
+
 const app = express();
+
+// ===== MIDDLEWARE SESSIONS & PASSPORT =====
+app.use(session({
+  secret: "your_secret_key",
+  resave: false,
+  saveUninitialized: false
+}));
+app.use(passport.initialize());
+app.use(passport.session());
 
 // ===== MIDDLEWARES GLOBAUX =====
 app.use(cors());
 app.use(express.json());
 
 // ===== IMPORT DES ROUTES =====
-const authRoutes = require('./routes/auth'); // /login, /register
-const courseRoutes = require('./routes/course-route'); // courses
-const categoryRoutes = require('./routes/category-route'); // categories
-const enrollmentRoutes = require('./routes/enrollment-route'); // enrollments
-const userRoutes = require('./routes/user-route'); // users
-const instructorRoutes = require('./routes/instructor-route'); // instructors
+const authRoutes = require('./routes/authRoutes'); // contient login, register, et Google OAuth
+const courseRoutes = require('./routes/course-route');
+const categoryRoutes = require('./routes/category-route');
+const enrollmentRoutes = require('./routes/enrollment-route');
+const userRoutes = require('./routes/user-route');
+const instructorRoutes = require('./routes/instructor-route');
 
 // ===== UTILISATION DES ROUTES =====
-app.use('/api/auth', authRoutes); // ex: /api/auth/login
+app.use('/api/auth', authRoutes); // ex: /api/auth/login, /api/auth/google
 app.use('/api/courses', courseRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/enrollments', enrollmentRoutes);
