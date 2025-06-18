@@ -241,75 +241,107 @@
       }
     },
     "/users/{id}": {
-      "get": {
-        "tags": ["User"],
-        "summar2y": "Get a user by ID",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "User ID",
-            "required": true,
-            "schema": { "type": "string" }
+  "get": {
+    "tags": ["User"],
+    "summary": "Get a user by ID",
+    "parameters": [
+      {
+        "name": "id",
+        "in": "path",
+        "description": "User ID",
+        "required": true,
+        "schema": { "type": "string" }
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "User details",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/User" }
           }
-        ],
-        "responses": {
-          "200": {
-            "description": "User details",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/User" }
-              }
-            }
-          },
-          "404": { "description": "User not found" }
-        },
-        "security": []
-      },
-      "put": {
-        "tags": ["User"],
-        "summary": "Update user by ID",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "User ID",
-            "required": true,
-            "schema": { "type": "string" }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "app2lication/json": {
-              "schema": { "$ref": "#/components/schemas/User" }
-            }
-          }
-        },
-        "responses": {
-          "200": { "description": "User updated" },
-          "400": { "description": "Invalid input" },
-          "404": { "description": "User not found" }
         }
       },
-      "delete": {
-        "tags": ["User"],
-        "summary": "Delete user by ID",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "User ID",
-            "required": true,
-            "schema": { "type": "string" }
-          }
-        ],
-        "responses": {
-          "200": { "description": "User deleted" },
-          "404": { "description": "User not found" }
+      "404": { "description": "User not found" }
+    }
+  },
+  "put": {
+    "tags": ["User"],
+    "summary": "Update user by ID",
+    "security": [
+      {
+        "oauth2": ["write:user", "update:user"]
+      }
+    ],
+    "parameters": [
+      {
+        "name": "id",
+        "in": "path",
+        "description": "User ID",
+        "required": true,
+        "schema": { "type": "string" }
+      }
+    ],
+    "requestBody": {
+      "required": true,
+      "content": {
+        "application/json": {
+          "schema": { "$ref": "#/components/schemas/User" }
         }
       }
     },
+    "responses": {
+      "200": { "description": "User updated" },
+      "400": { "description": "Invalid input" },
+      "404": { "description": "User not found" }
+    }
+  },
+  "post": {
+    "tags": ["User"],
+    "summary": "Create a new user",
+    "security": [
+      {
+        "oauth2": ["write:user"]
+      }
+    ],
+    "requestBody": {
+      "required": true,
+      "content": {
+        "application/json": {
+          "schema": { "$ref": "#/components/schemas/User" }
+        }
+      }
+    },
+    "responses": {
+      "201": {
+        "description": "User created",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/User" }
+          }
+        }
+      },
+      "400": { "description": "Invalid input" }
+    }
+  },
+  "delete": {
+    "tags": ["User"],
+    "summary": "Delete user by ID",
+    "parameters": [
+      {
+        "name": "id",
+        "in": "path",
+        "description": "User ID",
+        "required": true,
+        "schema": { "type": "string" }
+      }
+    ],
+    "responses": {
+      "200": { "description": "User deleted" },
+      "404": { "description": "User not found" }
+    }
+  }
+},
 
     "/courses": {
       "get": {
@@ -319,7 +351,7 @@
           "200": {
             "description": "List of courses",
             "content": {
-              "ap2plication/json": {
+              "application/json": {
                 "schema": {
                   "type": "array",
                   "items": { "$ref": "#/components/schemas/Course" }
