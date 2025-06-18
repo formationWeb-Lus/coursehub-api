@@ -106,114 +106,49 @@
     }
   ],
   "paths": {
-  "/api/auth/register": {
-    "post": {
-      "tags": ["Auth"],
-      "summary": "Register a new user",
-      "requestBody": {
-        "required": true,
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "object",
-              "required": ["email", "password", "name"],
-              "properties": {
-                "email": { "type": "string", "example": "user@example.com" },
-                "password": { "type": "string", "example": "Password123" },
-                "name": { "type": "string", "example": "John Doe" }
-              }
-            }
-          }
-        }
-      },
-      "responses": {
-        "201": { "description": "User registered successfully" },
-        "400": { "description": "Missing required fields" },
-        "409": { "description": "Email already exists" },
-        "500": { "description": "Server error" }
-      }
-    }
-  },
-  "/api/auth/login": {
-    "post": {
-      "tags": ["Auth"],
-      "summary": "Login a user and return a JWT",
-      "requestBody": {
-        "required": true,
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "object",
-              "required": ["email", "password"],
-              "properties": {
-                "email": { "type": "string", "example": "user@example.com" },
-                "password": { "type": "string", "example": "Pass2word123" }
-              }
-            }
-          }
-        }
-      },
-      "responses": {
-        "200": {
-          "description": "Login successful, JWT returned",
+    "/auth/login": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Login to get JWT token",
+        "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "token": { "type": "string", "example": "eyJhbGciOi..." }
+              "schema": { "$ref": "#/components/schemas/AuthRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "JWT token returned",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/AuthResponse" }
+              }
+            }
+          },
+          "401": { "description": "Unauthorized" }
+        },
+        "security": []
+      }
+    },
+    "/users": {
+      "get": {
+        "tags": ["User"],
+        "summary": "List all users",
+        "responses": {
+          "200": {
+            "description": "List of users",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/User" }
                 }
               }
             }
           }
         },
-        "400": { "description": "Missing email or password" },
-        "401": { "description": "Invalid credentials" },
-        "500": { "description": "Server error" }
-      }
-    }
-  },
-  "/auth/google": {
-    "get": {
-      "tags": ["Auth"],
-      "summary": "Redirect to Google for authentication",
-      "responses": {
-        "302": {
-          "description": "Redirect to Google Login"
-        }
-      }
-    }
-  },
-  "/auth/google/callback": {
-    "get": {
-      "tags": ["Auth"],
-      "summary": "Handle Google OAuth callback",
-      "responses": {
-        "302": {
-          "description": "Redirect to dashboard or error"
-        }
-      }
-    }
-  },
-  "/api/users": {
-    "get": {
-      "tags": ["User"],
-      "summary": "List all users",
-      "responses": {
-        "200": {
-          "description": "List of users",
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "array",
-                "items": { "$ref": "#/components/schemas/User" }
-              }
-            }
-          }
-        }
-      }
-},
-
         "security": []
       },
       "post": {
@@ -241,107 +176,75 @@
       }
     },
     "/users/{id}": {
-  "get": {
-    "tags": ["User"],
-    "summary": "Get a user by ID",
-    "parameters": [
-      {
-        "name": "id",
-        "in": "path",
-        "description": "User ID",
-        "required": true,
-        "schema": { "type": "string" }
-      }
-    ],
-    "responses": {
-      "200": {
-        "description": "User details",
-        "content": {
-          "application/json": {
-            "schema": { "$ref": "#/components/schemas/User" }
+      "get": {
+        "tags": ["User"],
+        "summar2y": "Get a user by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "User ID",
+            "required": true,
+            "schema": { "type": "string" }
           }
+        ],
+        "responses": {
+          "200": {
+            "description": "User details",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/User" }
+              }
+            }
+          },
+          "404": { "description": "User not found" }
+        },
+        "security": []
+      },
+      "put": {
+        "tags": ["User"],
+        "summary": "Update user by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "User ID",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "app2lication/json": {
+              "schema": { "$ref": "#/components/schemas/User" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "User updated" },
+          "400": { "description": "Invalid input" },
+          "404": { "description": "User not found" }
         }
       },
-      "404": { "description": "User not found" }
-    }
-  },
-  "put": {
-    "tags": ["User"],
-    "summary": "Update user by ID",
-    "security": [
-      {
-        "oauth2": ["write:user", "update:user"]
-      }
-    ],
-    "parameters": [
-      {
-        "name": "id",
-        "in": "path",
-        "description": "User ID",
-        "required": true,
-        "schema": { "type": "string" }
-      }
-    ],
-    "requestBody": {
-      "required": true,
-      "content": {
-        "application/json": {
-          "schema": { "$ref": "#/components/schemas/User" }
+      "delete": {
+        "tags": ["User"],
+        "summary": "Delete user by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "User ID",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "User deleted" },
+          "404": { "description": "User not found" }
         }
       }
     },
-    "responses": {
-      "200": { "description": "User updated" },
-      "400": { "description": "Invalid input" },
-      "404": { "description": "User not found" }
-    }
-  },
-  "post": {
-    "tags": ["User"],
-    "summary": "Create a new user",
-    "security": [
-      {
-        "oauth2": ["write:user"]
-      }
-    ],
-    "requestBody": {
-      "required": true,
-      "content": {
-        "application/json": {
-          "schema": { "$ref": "#/components/schemas/User" }
-        }
-      }
-    },
-    "responses": {
-      "201": {
-        "description": "User created",
-        "content": {
-          "application/json": {
-            "schema": { "$ref": "#/components/schemas/User" }
-          }
-        }
-      },
-      "400": { "description": "Invalid input" }
-    }
-  },
-  "delete": {
-    "tags": ["User"],
-    "summary": "Delete user by ID",
-    "parameters": [
-      {
-        "name": "id",
-        "in": "path",
-        "description": "User ID",
-        "required": true,
-        "schema": { "type": "string" }
-      }
-    ],
-    "responses": {
-      "200": { "description": "User deleted" },
-      "404": { "description": "User not found" }
-    }
-  }
-},
 
     "/courses": {
       "get": {
@@ -351,7 +254,7 @@
           "200": {
             "description": "List of courses",
             "content": {
-              "application/json": {
+              "ap2plication/json": {
                 "schema": {
                   "type": "array",
                   "items": { "$ref": "#/components/schemas/Course" }
@@ -689,3 +592,4 @@
       }
     }
   }
+}
