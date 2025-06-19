@@ -1,0 +1,19 @@
+## 👤 Individual Contributions – Jiresse Lusa (Week 07)
+
+### 1. 🔐 Developed Full CRUD API Routes with Validation and Error Handling
+- Implemented the `GET`, `POST`, `PUT`, and `DELETE` routes for the main resources of the application.
+- Integrated input validation using `express-validator` to ensure the integrity and structure of incoming request data.
+- Added centralized error handling with `handleErrors` middleware to catch and respond with clear error messages.
+
+### 2. 🔓 Implemented Google OAuth Authentication
+- Set up `passport.js` with the `passport-google-oauth20` strategy to allow secure login via Google.
+- Generated and managed JWT tokens for authenticated sessions.
+- Created route protection middleware (`checkJWTToken`, `checkLogin`) to guard private pages such as `/account`.
+
+### 🚀 Hosting & Documentation
+- Helped deploy the project to [Render](https://coursehub-api-2bva.onrender.com/api).
+- Documented the API using Swagger and made it accessible at `/api-docs`.
+
+---
+
+📌 *These contributions were made in alignment with the W07 Final Project Part 3 assignment requirements.*

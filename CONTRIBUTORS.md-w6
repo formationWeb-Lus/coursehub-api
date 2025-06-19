@@ -1,0 +1,20 @@
+## 👤 Individual Contributions – Jiresse Lusa (Week 06)
+
+### 1. 🗃️ CRUD Operations for Final Two Collections with Validation
+- Created full CRUD (GET, POST, PUT, DELETE) endpoints for the final two collections: `courses` and `feedback`.
+- Added data validation on all POST and PUT requests across **all four collections** using `express-validator`.
+- Implemented proper error handling with try/catch blocks and custom error responses for invalid requests or server errors.
+
+### 2. 🔐 Secured Routes with OAuth and Protected Middleware
+- Implemented Google OAuth using `passport-google-oauth20` strategy.
+- Secured the POST and PUT routes of at least two collections (`courses` and `feedback`) to require authentication using JWT.
+- Created middleware (`checkJWTToken`) to protect private endpoints and verify user tokens.
+
+### 🧪 Unit Testing and Documentation
+- Wrote 4 unit tests for GET routes using Jest and Supertest to ensure route functionality and database connectivity.
+- Helped update the Swagger documentation to reflect the new collections and secure routes.
+- Verified that `/api-docs` is live and functional on Render.
+
+---
+
+📌 *These contributions were made in accordance with the W06 Final Project Part 2 assignment requirements.*
